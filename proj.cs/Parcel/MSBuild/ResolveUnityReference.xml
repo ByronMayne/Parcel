@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- 
+  | This script is just used to allow us to quickly switch Unity
+  | versions. Using the UnityVersion set in BuildConfig it looks 
+  | for the Unity installation there. If it can't find that it 
+  | reverts to the default one installed. 
+  |
+  | Unfortunately there is no easy way to check the Unity version
+  | of the Unity installed at the default path and throw and error
+  | if it's incorrect. 
+  -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!-- These variables are used in our .cspoj MSBuild file -->
+    <UnityPathLibsDir>lib\Unity_$(UnityVersion)\</UnityPathLibsDir>
+    <!-- Hint is used for references in MSBuild -->
+    <UnityEngineHint>$(UnityPathLibsDir)UnityEngine.dll</UnityEngineHint>
+    <UnityEditorHint>$(UnityPathLibsDir)UnityEditor.dll</UnityEditorHint>
+  </PropertyGroup>
+  <!-- Using the paths we defined above we include them in as references. -->
+  <ItemGroup>
+    <!-- The Include part is just the label you see I add the version number to make it clear -->
+    <Reference Include="UnityEditor [$(UnityVersion)]">
+      <SpecificVersion>false</SpecificVersion>
+      <HintPath>$(UnityEditorHint)</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine [$(UnityVersion)]">
+      <SpecificVersion>false</SpecificVersion>
+      <HintPath>$(UnityEngineHint)</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

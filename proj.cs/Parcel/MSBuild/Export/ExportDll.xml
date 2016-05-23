@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Make a list of all the dlls items ( $(AssemblyName).dll, $(AssemblyName).pdb, and $(AssemblyName).dll.mdb )-->
+  <ItemGroup>
+    <DllFiles Include="$(DllPath).*"/>
+  </ItemGroup>
+  <Target Name="ExportDll"
+          Inputs="@(DllFiles)"
+          Outputs="$(UnityExportPath)%(DllFiles.FileName)%(DllFiles.Extension)"
+          AfterTargets="Export" 
+          Condition="'$(DistributeSource)' == 'false' Or  '$(DistributeSource)' == 'False'" >
+    <!--
+     Name: Name of the target
+     Input: This target is being used like a for loop for each item in our DllFiles ItemGroup. 
+     Output: MSBuild will check the output path's time stamp and see if it's been copied recently if it
+             has this titration is skipped. It will not skip if the input file has changed.
+     AfterTagets: This will be called after the Export target has been.
+     Condition: $(DistributeSource) [defined in BuildConfig.xml] is 'false' or 'False'
+    -->
+    <Message Text="   Export: %(DllFiles.FileName)%(DllFiles.Extension)" Importance="high"/>
+    <Message Text="           src: %(DllFiles.Identity)" Importance="high"/>
+    <Message Text="           dst: $(UnityExportPath)%(DllFiles.FileName)%(DllFiles.Extension)" Importance="high"/>
+    <Copy SourceFiles="%(DllFiles.Identity)" DestinationFolder="$(UnityExportPath)"/>
+  </Target>
+</Project>

@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Make a list of all our source files that are not in the obj or properties folder -->
+  <ItemGroup>
+    <SourceFiles Include="$(ProjectDir)**\*.cs" Exclude="$(ProjectDir)**\Properties\**\*.cs;$(ProjectDir)**\obj\**\*.cs;"/>
+  </ItemGroup>
+  <Target Name="ExportSource" 
+          Inputs="@(SourceFiles)"
+          Outputs="$(UnityExportPath)%(SourceFiles.Filename).cs"
+          AfterTargets="Export" 
+          Condition="'$(DistributeSource)' == 'true' Or  '$(DistributeSource)' == 'True'" >
+    <!--
+     Name: Name of the target
+     Input: This target is being used like a for loop for each item in our source files ItemGroup. 
+     Output: MSBuild will check the output path's time stamp and see if it's been copied recently if it
+             has this titration is skipped. It will not skip if the input file has changed.
+     AfterTagets: This will be called after the Export target has been.
+     Condition: $(DistributeSource) [defined in BuildConfig.xml] is 'true' or 'Tue'
+    -->
+    <Message Text=" Export: %(SourceFiles.Filename).cs" Importance="high"/>
+    <Message Text="         src: %(SourceFiles.Identity).cs" Importance="high"/>
+    <Message Text="         dst: $(UnityExportPath)%(RecursiveDir)%(SourceFiles.Filename).cs" Importance="high"/>
+    <Copy SourceFiles="@(SourceFiles)" DestinationFolder="$(UnityExportPath)%(RecursiveDir)"/>
+    <!-- WRONG! -->
+  </Target>
+</Project>

@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Some short hands to make the paths shorter to reference -->
+  <PropertyGroup>
+    <UnityExportPath>$(ProjectDir)$(RelativeUnityPath)</UnityExportPath>
+    <DllPath>$(TargetDir)$(TargetName)</DllPath>
+  </PropertyGroup>
+  <!-- The export options wait for this target to be called before running. -->
+  <Target Name="Export" AfterTargets="AfterBuild">
+    <!-- Force the Mono Symbols to build (if they have too) -->
+    <CallTarget Targets="GenerateMonoSymbols" Condition="'$(DistributeSource)' == 'false' Or  '$(DistributeSource)' == 'False'"/>
+    <!-- Log a message to the console saying which export option we picked. -->
+    <Message Condition="'$(DistributeSource)' == 'false' Or  '$(DistributeSource)' == 'False'" Text="[Export Option]    : (DLL) Dynamic Link Library" Importance="high"/>
+    <Message Condition="'$(DistributeSource)' == 'true' Or  '$(DistributeSource)' == 'True'"  Text="[Export Option]    : Source Code" Importance="high"/>
+  </Target>
+  <!-- Import our export option scripts -->
+  <Import Project="$(ProjectDir)\MSBuild\Export\ExportDll.xml"/>
+  <Import Project="$(ProjectDir)\MSBuild\Export\ExportSource.xml"/>
+</Project>
