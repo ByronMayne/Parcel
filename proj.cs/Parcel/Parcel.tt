@@ -1,0 +1,60 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<# 
+	string m_Indent = "  ";
+	string[] m_TypesToExtend = new string[] { "Transform", "GameObject", "MonoBehaviour" };
+#>
+using UnityEngine;
+
+namespace ParcelTool
+{
+
+	public static partial class Parcel
+	{
+<#		NewLine();			  #>
+<#		PushIndent(m_Indent); #>
+<#		PushIndent(m_Indent); #>
+<#		for(int i = 0; i < m_TypesToExtend.Length; i++)
+		{
+#>
+/// <summary>
+/// Instantiate a new GameObject from Parcel using asset bundles at runtime and AssetDatabase at edit time.
+/// </summary>
+/// <param name="assetName">The name of the asset you want to load.</param>
+/// <param name="bundleName">The bundle the asset belongs in.</param>
+/// <returns>The instantiated prefab.</returns>
+<#
+			WriteLine("public static GameObject Instantiate( this " + m_TypesToExtend[i] + " " + m_TypesToExtend[i].ToLower() + ", string assetName, string bundleName )");
+			WriteLine("{");
+			PushIndent(m_Indent);
+			WriteLine("return Instantiate(assetName, bundleName);");
+			PopIndent();
+			WriteLine("}");
+			NewLine();
+#>
+/// <summary>
+/// Instantiate a new GameObject from Parcel using asset bundles at runtime and AssetDatabase at edit time.
+/// </summary>
+/// <param name="parcelObject">The parcel object that you want to Instantiate.</param>
+/// <returns>The instantiated prefab.</returns>
+<#
+	  		WriteLine("public static GameObject Instantiate( this " + m_TypesToExtend[i] + " " + m_TypesToExtend[i].ToLower() + ", ParcelObject parcelObject )");
+			WriteLine("{");
+			PushIndent(m_Indent);
+			WriteLine("return Instantiate(parcelObject);");
+			PopIndent();
+			WriteLine("}");
+
+			if( i + 1 < m_TypesToExtend.Length) NewLine();
+		}
+#>
+<# PopIndent(); #>
+<# PopIndent(); #>
+	}
+}
+
+<#+ public void NewLine() { WriteLine(string.Empty); } #>

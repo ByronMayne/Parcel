@@ -24,3 +24,6 @@ ExportedObj/
 
 # Unity3D Generated File On Crash Reports
 sysinfo.txt
+proj.cs/Parcel/bin/
+proj.unity/Temp/
+proj.unity/Library/
