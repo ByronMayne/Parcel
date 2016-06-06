@@ -13,7 +13,7 @@ using UnityEngine;
 namespace ParcelTool
 {
 
-	public static partial class Parcel
+	public static class UnityTypeExtensions
 	{
 <#		NewLine();			  #>
 <#		PushIndent(m_Indent); #>
@@ -21,6 +21,7 @@ namespace ParcelTool
 <#		for(int i = 0; i < m_TypesToExtend.Length; i++)
 		{
 #>
+#region -= <#= m_TypesToExtend[i] #> Extensions =-
 /// <summary>
 /// Instantiate a new GameObject from Parcel using asset bundles at runtime and AssetDatabase at edit time.
 /// </summary>
@@ -28,10 +29,10 @@ namespace ParcelTool
 /// <param name="bundleName">The bundle the asset belongs in.</param>
 /// <returns>The instantiated prefab.</returns>
 <#
-			WriteLine("public static GameObject Instantiate( this " + m_TypesToExtend[i] + " " + m_TypesToExtend[i].ToLower() + ", string assetName, string bundleName )");
+			WriteLine("public static GameObject Instantiate( this " + m_TypesToExtend[i] + " " + m_TypesToExtend[i].ToLower() + ", string assetPath, string bundleName )");
 			WriteLine("{");
 			PushIndent(m_Indent);
-			WriteLine("return Instantiate(assetName, bundleName);");
+			WriteLine("return Instantiate(" +  m_TypesToExtend[i].ToLower() + ", assetPath, bundleName);");
 			PopIndent();
 			WriteLine("}");
 			NewLine();
@@ -45,12 +46,13 @@ namespace ParcelTool
 	  		WriteLine("public static GameObject Instantiate( this " + m_TypesToExtend[i] + " " + m_TypesToExtend[i].ToLower() + ", ParcelObject parcelObject )");
 			WriteLine("{");
 			PushIndent(m_Indent);
-			WriteLine("return Instantiate(parcelObject);");
+			WriteLine("return Instantiate(" + m_TypesToExtend[i].ToLower() + ", parcelObject);");
 			PopIndent();
 			WriteLine("}");
+			WriteLine("#endregion");
 
-			if( i + 1 < m_TypesToExtend.Length) NewLine();
-		}
+			NewLine();
+}
 #>
 <# PopIndent(); #>
 <# PopIndent(); #>

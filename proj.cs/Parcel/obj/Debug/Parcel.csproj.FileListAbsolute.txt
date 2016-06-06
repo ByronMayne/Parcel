@@ -1,6 +1,6 @@
-D:\Repositories\Parcel\proj.cs\Parcel\bin\Debug\Parcel.dll
-D:\Repositories\Parcel\proj.cs\Parcel\bin\Debug\Parcel.pdb
 D:\Repositories\Parcel\proj.cs\Parcel\bin\Debug\UnityEditor.dll
 D:\Repositories\Parcel\proj.cs\Parcel\bin\Debug\UnityEngine.dll
-D:\Repositories\Parcel\proj.cs\Parcel\obj\Debug\Parcel.dll
-D:\Repositories\Parcel\proj.cs\Parcel\obj\Debug\Parcel.pdb
+D:\Repositories\Parcel\proj.cs\Parcel\bin\Debug\ParcelTool.dll
+D:\Repositories\Parcel\proj.cs\Parcel\bin\Debug\ParcelTool.pdb
+D:\Repositories\Parcel\proj.cs\Parcel\obj\Debug\ParcelTool.dll
+D:\Repositories\Parcel\proj.cs\Parcel\obj\Debug\ParcelTool.pdb
