@@ -13,8 +13,6 @@ namespace ParcelTool
 {
   public class ParcelMenuItems
   {
-    public static object CShapeCodeProvider { get; private set; }
-
     public static string AssemblyDirectory
     {
       get
@@ -42,14 +40,14 @@ namespace ParcelTool
         bundles[i] = build;
       }
 
-      ParcelBundleGenerator map = new ParcelBundleGenerator();
-      Dictionary<string, object> session = new Dictionary<string, object>();
-      session.Add("m_Bundles", bundles);
-      map.Session = session;
-      map.Initialize();
-      string classDef = map.TransformText();
-      File.WriteAllText(Application.dataPath + @"/Libraries/Parcel/ParcelMap.cs", classDef);
-      AssetDatabase.Refresh();
+      //ParcelBundleGenerator map = new ParcelBundleGenerator();
+      //Dictionary<string, object> session = new Dictionary<string, object>();
+      //session.Add("m_Bundles", bundles);
+      //map.Session = session;
+      //map.Initialize();
+      //string classDef = map.TransformText();
+      //File.WriteAllText(Application.dataPath + @"/Libraries/Parcel/ParcelMap.cs", classDef);
+      //AssetDatabase.Refresh();
 
       // Get our assemblies that we need to reference 
       //string userDLLPath = Application.dataPath.Replace("/Assets", @"Library/ScriptAssemblies/Assembly-CSharp.dll");

@@ -1,0 +1,88 @@
+﻿<#@ template debug="false" hostSpecific="false" linePragmas="false" visibility="public" #>
+<#@ output extension=".cs" #>
+<#@ parameter name="m_Bundles" type="UnityEditor.AssetBundleBuild[]"#>
+<#@ include file=".\StringHelpers.cs" #> 
+<#@ include file=".\AssetMeta.cs" #>
+<#@ include file=".\Generator_Property.tt" #>
+<#@ include file=".\Generator_Field.tt" #>
+<#@ include file=".\Generator_BundleFunction.tt" #>
+
+using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor; 
+#endif
+using System.Collections;
+using System.Collections.Generic;
+
+namespace ParcelTool
+{
+	public delegate void OnAssetDownloadCompleteDelegate<T>( T asset );
+	public delegate void AssetRequestDelegate();
+
+	public static class ParcelBundles
+	{
+	    /// <summary>
+        /// If true in the editor at play mode we will load using Asset Bundles
+        /// instead of the Asset Database. It is much quicker to use Asset Database. 
+        /// </summary>
+	    public static bool UseBundlesInEditor = false;
+        public static bool UseAssetDatabaseToLoad
+        {
+            get
+            {
+
+#if UNITY_EDITOR
+                if(EditorApplication.isPlayingOrWillChangePlaymode)
+                {
+                    return UseBundlesInEditor; 
+                }
+#endif
+                return false;
+            }
+        }
+
+<# for( int x = 0; x < m_Bundles.Length; x++) 
+   {
+	   AssetMeta[] m_BundleMeta = new AssetMeta[m_Bundles[x].assetNames.Length];
+
+	   for(int y = 0; y < m_BundleMeta.Length; y++)
+       {
+		   // Create a new bundle item for each of our files. 
+		   m_BundleMeta[y] = new AssetMeta(m_Bundles[x].assetNames[y]); 
+       }
+
+	    // Write our new class
+		WriteLine("public static class {0} ", m_Bundles[x].assetBundleName);
+		WriteLine("{");
+		PushIndent("  ");
+		{
+			// Write Fields
+			WriteLine("private const string m_BundleName = \"{0}\";", m_Bundles[x].assetBundleName);
+			WriteLine("private static AssetBundle m_Bundle;");
+			WriteLine("private static IBundleDownloader m_BundleDownloader;");
+			WriteLine("private static List<AssetRequestDelegate> m_QueueAssetRequests = new List<AssetRequestDelegate>();");
+			WriteLine("// Cached Objects");
+	    	ForEach( m_BundleMeta, WriteFiled);
+
+			// Write Properties
+			ForEach( m_BundleMeta, WriteProperty);
+
+			// Write Functions 
+			WriteBundleFunctions(m_Bundles[x].assetBundleName);
+        }
+		PopIndent();
+		WriteLine("}");
+   }
+#>
+	}
+}
+
+<#+
+public void ForEach( AssetMeta[] bundleMetaArray, System.Action<AssetMeta> action )
+{
+	for(int i = 0; i < bundleMetaArray.Length; i++)
+    {
+		action(bundleMetaArray[i]);
+    }
+}
+#>

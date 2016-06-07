@@ -10,31 +10,87 @@
 namespace ParcelTool
 {
     using System;
-    using System.IO;
-    using UnityEngine;
-    using UnityEditor;
-    using System.Collections;
-    using System.Collections.Generic;
     
     /// <summary>
     /// Class to produce the template output
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "14.0.0.0")]
-    public partial class ParcelMapGenerator : ParcelMapGeneratorBase
+    public partial class ParcelBundleGenerator : ParcelBundleGeneratorBase
     {
         /// <summary>
         /// Create the template output
         /// </summary>
         public virtual string TransformText()
         {
+            this.Write("using System.Text;\r\nusing System.Text.RegularExpressions;\r\n\r\nnamespace ParcelTool" +
+                    "\r\n{\r\n  public static class StringHelpers\r\n  {\r\n    /// <summary>\r\n    /// Takes " +
+                    "a string and removes all spaces and invalid characters. This string would be val" +
+                    "id for\r\n    /// a variable name. \r\n    /// </summary>\r\n    public static string " +
+                    "ToVariableName(string name)\r\n    {\r\n      string pattern = \"[\\\\~#%&*{}/:<>!~^*()" +
+                    "+-`?|\\\"-] \";\r\n      Regex regex = new Regex(pattern);\r\n      return regex.Replac" +
+                    "e(name, string.Empty);\r\n    }\r\n\r\n    /// <summary>\r\n    /// Takes a string an in" +
+                    "serts spaces before every capital letter and removes all\r\n    /// invalid charac" +
+                    "ters. \r\n    /// </summary>\r\n    public static string ToPrettyName(string name, b" +
+                    "ool preserveAcronyms)\r\n    {\r\n      if (string.IsNullOrEmpty(name))\r\n      {\r\n  " +
+                    "      return string.Empty;\r\n      }\r\n\r\n      string pattern = \"[\\\\~#%&*{}/:<>!~^" +
+                    "*()+-`?|\\\"-]\";\r\n\r\n      name = name.Replace(\'_\', \' \');\r\n      Regex regEx = new " +
+                    "Regex(pattern);\r\n      StringBuilder newText = new StringBuilder(name.Length * 2" +
+                    ");\r\n      name = regEx.Replace(name, string.Empty);\r\n\r\n      newText.Append(name" +
+                    "[0]);\r\n      for (int i = 1; i < name.Length; i++)\r\n      {\r\n        if (char.Is" +
+                    "Upper(name[i]))\r\n        {\r\n          if ((name[i - 1] != \' \' && !char.IsUpper(n" +
+                    "ame[i - 1])) || (preserveAcronyms && char.IsUpper(name[i - 1]) && i < name.Lengt" +
+                    "h - 1 && !char.IsUpper(name[i + 1])))\r\n          {\r\n            newText.Append(\'" +
+                    " \');\r\n          }\r\n        }\r\n        newText.Append(name[i]);\r\n      }\r\n      r" +
+                    "eturn newText.ToString();\r\n    }\r\n  }\r\n}\r\n");
             this.Write(" \r\n");
+            this.Write("using System.IO;\r\nusing UnityEditor;\r\n\r\nnamespace ParcelTool\r\n{\r\n\r\n  /// <summary" +
+                    ">\r\n  /// Used to setup all the strings we need to write for each asset. \r\n  /// " +
+                    "</summary>\r\n  public struct AssetMeta\r\n  {\r\n    private string m_Typename;\r\n    " +
+                    "private string m_AssetPath;\r\n    private string m_Fullpath;\r\n    private string " +
+                    "m_Name;\r\n    private string m_PrettyName;\r\n    private bool m_IsResourceItem;\r\n\r" +
+                    "\n    public AssetMeta(string fullPath)\r\n    {\r\n      m_Fullpath = fullPath;\r\n   " +
+                    "   UnityEngine.Object asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(" +
+                    "fullPath);\r\n      m_Typename = asset.GetType().Name;\r\n\r\n      m_IsResourceItem =" +
+                    " m_Fullpath.Contains(\"/Resources/\");\r\n      m_Name = Path.GetFileNameWithoutExte" +
+                    "nsion(m_Fullpath);\r\n      m_PrettyName = StringHelpers.ToPrettyName(m_Name, true" +
+                    ");\r\n      m_Name = StringHelpers.ToVariableName(m_Name);\r\n\r\n      if (m_IsResour" +
+                    "ceItem)\r\n      {\r\n        int pathIndex = m_Fullpath.IndexOf(\"/Resources/\") + 11" +
+                    " /* 11 is how many chars the resources folder is */;\r\n        m_AssetPath = m_Fu" +
+                    "llpath.Substring(pathIndex, fullPath.Length - pathIndex);\r\n        m_AssetPath =" +
+                    " m_AssetPath.Replace(Path.GetExtension(m_AssetPath), string.Empty);\r\n      }\r\n  " +
+                    "    else\r\n      {\r\n        m_AssetPath = m_Name;\r\n      }\r\n\r\n    }\r\n\r\n    /// <s" +
+                    "ummary>\r\n    /// Returns true if this item belongs in the resources folder false" +
+                    " if not. \r\n    /// </summary>\r\n    public bool isResourceItem\r\n    {\r\n      get\r" +
+                    "\n      {\r\n        return m_IsResourceItem;\r\n      }\r\n    }\r\n\r\n    /// <summary>\r" +
+                    "\n    /// The name of the asset. \r\n    /// </summary>\r\n    public string name\r\n  " +
+                    "  {\r\n      get\r\n      {\r\n        return m_Name;\r\n      }\r\n    }\r\n\r\n    /// <summ" +
+                    "ary>\r\n    /// The name of the asset with spaces before capital letters. \r\n    //" +
+                    "/ </summary>\r\n    public string prettyName\r\n    {\r\n      get\r\n      {\r\n        r" +
+                    "eturn m_PrettyName;\r\n      }\r\n    }\r\n\r\n    /// <summary>\r\n    /// The string ver" +
+                    "sion of it\'s type used to print. .GetType().Name; \r\n    /// </summary>\r\n    publ" +
+                    "ic string typeName\r\n    {\r\n      get\r\n      {\r\n        return m_Typename;\r\n     " +
+                    " }\r\n    }\r\n\r\n    /// <summary>\r\n    /// The full path from the root of the proje" +
+                    "ct to where this asset is. \r\n    /// </summary>\r\n    public string fullPath\r\n   " +
+                    " {\r\n      get\r\n      {\r\n        return m_Fullpath;\r\n      }\r\n    }\r\n\r\n    /// <s" +
+                    "ummary>\r\n    /// The path from the resources folder (if a resource item) or just" +
+                    " the asset name if it\'s in an\r\n    /// Asset Bundle. \r\n    /// </summary>\r\n    p" +
+                    "ublic string assetPath\r\n    {\r\n      get\r\n      {\r\n        return m_AssetPath;\r\n" +
+                    "      }\r\n    }\r\n  }\r\n}\r\n");
+            this.Write("\r\n");
             this.Write(@"
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor; 
+#endif
+using System.Collections;
+using System.Collections.Generic;
 
 namespace ParcelTool
 {
-	public static class ParcelMap
+	public delegate void OnAssetDownloadCompleteDelegate<T>( T asset );
+	public delegate void AssetRequestDelegate();
+
+	public static class ParcelBundles
 	{
 	    /// <summary>
         /// If true in the editor at play mode we will load using Asset Bundles
@@ -67,18 +123,24 @@ namespace ParcelTool
 		   m_BundleMeta[y] = new AssetMeta(m_Bundles[x].assetNames[y]); 
        }
 
-	   // Write our new class
+	    // Write our new class
 		WriteLine("public static class {0} ", m_Bundles[x].assetBundleName);
 		WriteLine("{");
 		PushIndent("  ");
 		{
 			// Write Fields
-			ForEach( m_BundleMeta, WriteFiled);
+			WriteLine("private const string m_BundleName = \"{0}\";", m_Bundles[x].assetBundleName);
+			WriteLine("private static AssetBundle m_Bundle;");
+			WriteLine("private static IBundleDownloader m_BundleDownloader;");
+			WriteLine("private static List<AssetRequestDelegate> m_QueueAssetRequests = new List<AssetRequestDelegate>();");
+			WriteLine("// Cached Objects");
+	    	ForEach( m_BundleMeta, WriteFiled);
 
 			// Write Properties
 			ForEach( m_BundleMeta, WriteProperty);
 
 			// Write Functions 
+			WriteBundleFunctions(m_Bundles[x].assetBundleName);
         }
 		PopIndent();
 		WriteLine("}");
@@ -87,7 +149,141 @@ namespace ParcelTool
             this.Write("\t}\r\n}\r\n\r\n");
             return this.GenerationEnvironment.ToString();
         }
+
+public void ForEach( AssetMeta[] bundleMetaArray, System.Action<AssetMeta> action )
+{
+	for(int i = 0; i < bundleMetaArray.Length; i++)
+    {
+		action(bundleMetaArray[i]);
+    }
+}
+
  
+/// <summary>
+/// Used to write the property for each asset meta. 
+/// </summary>
+public void WriteProperty(AssetMeta meta)
+{
+
+this.Write(" \r\n\r\n/// <summary>\r\n/// Takes a delegate that will assign a ");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.typeName));
+
+this.Write(" named ");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.prettyName));
+
+this.Write(". If the\r\n/// Asset Bundle is load this will be invoked right away otherwise will" +
+        " be invoked when done downloading. \r\n/// </summary>\r\npublic static void Request");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
+
+this.Write("(OnAssetDownloadCompleteDelegate<");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.typeName));
+
+this.Write("> assignmentFunction)\r\n{\r\n\tif( m_Bundle != null )\r\n\t{\r\n\t\tif( assignmentFunction !" +
+        "= null )\r\n\t\t{\r\n\t\t\tassignmentFunction( Get");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
+
+this.Write("() ); \r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tm_QueueAssetRequests.Add( () => { assignmentFunction" +
+        "( Get");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
+
+this.Write("() ); } );\r\n\t\t}\r\n\t}\r\n}\r\n\r\n/// <summary>\r\n/// Gets the ");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.typeName));
+
+this.Write(" named ");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.prettyName));
+
+this.Write(" from the current\r\n/// Asset Bundle. If the bundle is not loaded will return null" +
+        ". \r\n/// </summary>\r\n/// <returns>The asset from the Asset Bundle if it is loaded" +
+        ".</returns>\r\npublic static ");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.typeName));
+
+this.Write(" Get");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
+
+this.Write("() \r\n{\r\n\tif( m_");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
+
+this.Write(" == null )\r\n\t{\r\n#if UNITY_EDITOR\r\n\t\tif(ParcelBundles.UseAssetDatabaseToLoad)\r\n\t\t{" +
+        "\r\n\t\t\tm_");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
+
+this.Write(" = AssetDatabase.LoadAssetAtPath<");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.typeName));
+
+this.Write(">( \"");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.fullPath));
+
+this.Write("\" );\r\n\t\t\treturn m_");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
+
+this.Write(";\r\n\t\t}\r\n#endif\r\n");
+
+ 
+	if ( meta.isResourceItem )
+	{ 
+		// The asset belongs in the resources folder.
+
+this.Write("\t\tm_");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
+
+this.Write(" = Resources.Load<");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.typeName));
+
+this.Write(">( \"");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.assetPath));
+
+this.Write("\" );\r\n");
+
+ } 
+	else 
+	{
+		// The asset belongs in an asset bundle.
+
+this.Write("\t\tm_");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
+
+this.Write(" = m_Bundle.LoadAsset<");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.typeName));
+
+this.Write(">( \"");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.assetPath));
+
+this.Write("\" );\r\n");
+
+
+	}
+
+this.Write("\t}\r\n\treturn m_");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
+
+this.Write(";\r\n}\r\n");
+
+
+}
+
+
 /// <summary>
 /// Used to write the field for each asset meta. 
 /// </summary>
@@ -107,167 +303,35 @@ this.Write(" = null;\r\n");
 
 } 
 
-/// <summary>
-/// Used to write the property for each asset meta. 
-/// </summary>
-public void WriteProperty(AssetMeta meta)
+ 
+public void WriteBundleFunctions(string bundleName)
 {
 
-this.Write(" \r\npublic static ");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(meta.typeName));
-
-this.Write(" ");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
-
-this.Write("\r\n{\r\n\tget\r\n\t{\r\n\t\tif( m_");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
-
-this.Write(" == null )\r\n\t\t{\r\n#if UNITY_EDITOR\r\n\t\t\tif(ParcelMap.UseAssetDatabaseToLoad)\r\n\t\t\t{\r" +
-        "\n\t\t\t\tm_");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
-
-this.Write(" = AssetDatabase.LoadAssetAtPath<");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(meta.typeName));
-
-this.Write(">( \"");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(meta.fullPath));
-
-this.Write("\" );\r\n\t\t\t\treturn m_");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
-
-this.Write(";\r\n\t\t\t}\r\n#endif\r\n");
-
- if ( meta.isResourceItem ) { 
-this.Write("\t\t\tm_");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
-
-this.Write(" = Resources.Load<");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(meta.typeName));
-
-this.Write(">( \"");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(meta.assetPath));
-
-this.Write("\" );\r\n");
-
- } else { 
-this.Write("\t\t\tm_");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
-
-this.Write(" = new AssetBundle().LoadAsset<");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(meta.typeName));
-
-this.Write(">( \"");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(meta.assetPath));
-
-this.Write("\" );\r\n");
-
-}
-this.Write("\t\t}\r\n\t\treturn m_");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(meta.name));
-
-this.Write(";\r\n\t}\r\n}\r\n");
+this.Write("    /// <summary>\r\n    /// Forces Parcel to start downloading the bundle as reque" +
+        "sted. This requires a IBundleDownloader Interface\r\n    /// to handle all callbac" +
+        "ks.\r\n    /// </summary>\r\n    /// <param name=\"bundleDownloader\">The class that w" +
+        "ill handle the callbacks.</param>\r\n\tpublic static void DownloadBundle(IBundleDow" +
+        "nloader bundleDownloader)\r\n\t{\r\n\t\t m_BundleDownloader = bundleDownloader;\r\n\t     " +
+        "bundleDownloader.StartCoroutine(DownloadBundleRoutine());\r\n\t}\r\n\t\r\n    /// <summa" +
+        "ry>\r\n    /// The Coroutine used to download the bundle for this class. This also" +
+        " fires the\r\n    /// users callbacks for the progress.\r\n    /// </summary>\r\n\tpriv" +
+        "ate static IEnumerator DownloadBundleRoutine()\r\n\t{\r\n\t  WWW www = WWW.LoadFromCac" +
+        "heOrDownload(m_BundleDownloader.GetBundleURL(m_BundleName), 0);\r\n\t  do\r\n\t  {\r\n\t " +
+        "   yield return new WaitForEndOfFrame();\r\n\t    m_BundleDownloader.OnBundleDownlo" +
+        "adProgressUpdated(m_BundleName, www.progress);\r\n\t  } while (!www.isDone);\r\n\t\r\n\t " +
+        " if(string.IsNullOrEmpty(www.error))\r\n\t  {\r\n\t\tm_BundleDownloader.OnBundleDownloa" +
+        "dComplete(m_BundleName);\r\n\t\tm_Bundle = www.assetBundle;\r\n\t\r\n\t\t// Fire off all re" +
+        "quests.\r\n\t\tfor( int i = 0; i < m_QueueAssetRequests.Count; i++)\r\n\t\t{\r\n\t\t\tm_Queue" +
+        "AssetRequests[i](); \r\n\t\t}\r\n\t\tm_QueueAssetRequests.Clear();\r\n\t  }\r\n\t  else\r\n\t  {\r" +
+        "\n\t    m_BundleDownloader.OnBundleDownloadFailed(m_BundleName, www.url, www.error" +
+        ");\r\n\t\tm_Bundle = null;\r\n\t  }\r\n\t}\r\n\r\n    /// <summary>\r\n    /// Unloads the Asset" +
+        " Bundle with the options to force unload all the\r\n    /// assets that are curren" +
+        "tly being used. \r\n    /// </summary>\r\n    public static void UnloadBundle(bool u" +
+        "nloadAllLoadedObjects)\r\n    {\r\n      m_Bundle.Unload(unloadAllLoadedObjects);\r\n " +
+        "   }\r\n");
 
 
 }
-
-
-public void ForEach( AssetMeta[] bundleMetaArray, System.Action<AssetMeta> action )
-{
-	for(int i = 0; i < bundleMetaArray.Length; i++)
-    {
-		action(bundleMetaArray[i]);
-    }
-}
-
-/// <summary>
-/// Used to setup all the strings we need to write for each asset. 
-/// </summary>
-public struct AssetMeta
-{
-	private string m_Typename; 
-	private string m_AssetPath;
-	private string m_Fullpath;
-	private string m_Name;
-	private bool m_IsResourceItem;
-
-	public AssetMeta(string fullPath)
-    {
-		m_Fullpath = fullPath;
-		UnityEngine.Object asset =  AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(fullPath);
-		m_Typename = asset.GetType().Name; 
-
-		m_IsResourceItem = m_Fullpath.Contains("/Resources/");
-		m_Name = Path.GetFileNameWithoutExtension(m_Fullpath);
-
-		if(m_IsResourceItem)
-        {
-			int pathIndex = m_Fullpath.IndexOf("/Resources/");
-			m_AssetPath = m_Fullpath.Substring(pathIndex, fullPath.Length - pathIndex);
-        }
-		else
-        {
-			m_AssetPath = m_Name;
-        }
-
-    }
-
-	public bool isResourceItem
-    {
-		get
-        {
-			return m_IsResourceItem;
-        }
-    }
-
-	public string name
-    {
-		get
-        {
-			return m_Name;
-        }
-    }
-
-	public string typeName
-    {
-		get
-        {
-			return m_Typename;
-        }
-    }
-
-	public string fullPath
-    {
-		get 
-        {
-			return m_Fullpath; 
-        }
-    }
-
-	public string assetPath
-    {
-		get
-        {
-			return m_AssetPath;
-        }
-    }
-
-
-}
-	
 
 
 private UnityEditor.AssetBundleBuild[] _m_BundlesField;
@@ -317,7 +381,7 @@ if ((m_BundlesValueAcquired == false))
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "14.0.0.0")]
-    public class ParcelMapGeneratorBase
+    public class ParcelBundleGeneratorBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;

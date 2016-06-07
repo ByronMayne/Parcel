@@ -1,0 +1,11 @@
+﻿<#+
+/// <summary>
+/// Used to write the field for each asset meta. 
+/// </summary>
+public void WriteFiled(AssetMeta meta)
+{
+#>
+private static <#= meta.typeName #> m_<#= meta.name #> = null;
+<#+
+} 
+#>

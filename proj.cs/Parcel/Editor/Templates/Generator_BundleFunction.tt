@@ -1,0 +1,58 @@
+﻿<#+ 
+public void WriteBundleFunctions(string bundleName)
+{
+#>
+    /// <summary>
+    /// Forces Parcel to start downloading the bundle as requested. This requires a IBundleDownloader Interface
+    /// to handle all callbacks.
+    /// </summary>
+    /// <param name="bundleDownloader">The class that will handle the callbacks.</param>
+	public static void DownloadBundle(IBundleDownloader bundleDownloader)
+	{
+		 m_BundleDownloader = bundleDownloader;
+	     bundleDownloader.StartCoroutine(DownloadBundleRoutine());
+	}
+	
+    /// <summary>
+    /// The Coroutine used to download the bundle for this class. This also fires the
+    /// users callbacks for the progress.
+    /// </summary>
+	private static IEnumerator DownloadBundleRoutine()
+	{
+	  WWW www = WWW.LoadFromCacheOrDownload(m_BundleDownloader.GetBundleURL(m_BundleName), 0);
+	  do
+	  {
+	    yield return new WaitForEndOfFrame();
+	    m_BundleDownloader.OnBundleDownloadProgressUpdated(m_BundleName, www.progress);
+	  } while (!www.isDone);
+	
+	  if(string.IsNullOrEmpty(www.error))
+	  {
+		m_BundleDownloader.OnBundleDownloadComplete(m_BundleName);
+		m_Bundle = www.assetBundle;
+	
+		// Fire off all requests.
+		for( int i = 0; i < m_QueueAssetRequests.Count; i++)
+		{
+			m_QueueAssetRequests[i](); 
+		}
+		m_QueueAssetRequests.Clear();
+	  }
+	  else
+	  {
+	    m_BundleDownloader.OnBundleDownloadFailed(m_BundleName, www.url, www.error);
+		m_Bundle = null;
+	  }
+	}
+
+    /// <summary>
+    /// Unloads the Asset Bundle with the options to force unload all the
+    /// assets that are currently being used. 
+    /// </summary>
+    public static void UnloadBundle(bool unloadAllLoadedObjects)
+    {
+      m_Bundle.Unload(unloadAllLoadedObjects);
+    }
+<#+
+}
+#>

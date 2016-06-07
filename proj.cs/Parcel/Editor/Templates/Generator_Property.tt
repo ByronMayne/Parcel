@@ -1,0 +1,64 @@
+﻿<#+ 
+/// <summary>
+/// Used to write the property for each asset meta. 
+/// </summary>
+public void WriteProperty(AssetMeta meta)
+{
+#> 
+
+/// <summary>
+/// Takes a delegate that will assign a <#= meta.typeName #> named <#= meta.prettyName #>. If the
+/// Asset Bundle is load this will be invoked right away otherwise will be invoked when done downloading. 
+/// </summary>
+public static void Request<#= meta.name #>(OnAssetDownloadCompleteDelegate<<#=meta.typeName#>> assignmentFunction)
+{
+	if( m_Bundle != null )
+	{
+		if( assignmentFunction != null )
+		{
+			assignmentFunction( Get<#= meta.name #>() ); 
+		}
+		else
+		{
+			m_QueueAssetRequests.Add( () => { assignmentFunction( Get<#= meta.name #>() ); } );
+		}
+	}
+}
+
+/// <summary>
+/// Gets the <#= meta.typeName #> named <#= meta.prettyName #> from the current
+/// Asset Bundle. If the bundle is not loaded will return null. 
+/// </summary>
+/// <returns>The asset from the Asset Bundle if it is loaded.</returns>
+public static <#= meta.typeName #> Get<#= meta.name #>() 
+{
+	if( m_<#= meta.name #> == null )
+	{
+#if UNITY_EDITOR
+		if(ParcelBundles.UseAssetDatabaseToLoad)
+		{
+			m_<#= meta.name #> = AssetDatabase.LoadAssetAtPath<<#= meta.typeName #>>( "<#= meta.fullPath #>" );
+			return m_<#= meta.name #>;
+		}
+#endif
+<#+ 
+	if ( meta.isResourceItem )
+	{ 
+		// The asset belongs in the resources folder.
+#>
+		m_<#= meta.name #> = Resources.Load<<#= meta.typeName #>>( "<#= meta.assetPath #>" );
+<#+ } 
+	else 
+	{
+		// The asset belongs in an asset bundle.
+#>
+		m_<#= meta.name #> = m_Bundle.LoadAsset<<#= meta.typeName #>>( "<#= meta.assetPath #>" );
+<#+
+	}
+#>
+	}
+	return m_<#= meta.name #>;
+}
+<#+
+}
+#>
